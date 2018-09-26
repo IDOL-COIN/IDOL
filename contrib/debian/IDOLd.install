@@ -1,0 +1,2 @@
+debian/bin/IDOLd usr/bin
+src/IDOLd usr/lib/IDOL
