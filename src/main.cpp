@@ -2417,8 +2417,8 @@ bool LoadBlockIndex(bool fAllowNew)
 
     if (fTestNet)
     {
-        pchMessageStart[0] = 0x07;
-        pchMessageStart[1] = 0x11;
+        pchMessageStart[0] = 0xf2;
+        pchMessageStart[1] = 0xc3;
         pchMessageStart[2] = 0x05;
         pchMessageStart[3] = 0x0b;
 
@@ -2442,9 +2442,9 @@ bool LoadBlockIndex(bool fAllowNew)
         if (!fAllowNew)
             return false;
 
-        const char* pszTimestamp = "bE91, std::4648.5: Fdc=*8dj##,LZ.4i>%2fK!\"uc!;IlQ$R]iD";
+        const char* pszTimestamp = "Cheer idols, Interact more closely with idols, Support idols more directly";
         CTransaction txNew;
-        txNew.nTime = 1532980178;
+        txNew.nTime = 1538040072;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
@@ -2454,13 +2454,13 @@ bool LoadBlockIndex(bool fAllowNew)
         block.vtx.push_back(txNew);
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
-        block.nTime    = 1532980178;
+        block.nTime    = 1538040072;
         block.nVersion = 1;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
-        block.nNonce   = 671683;
+        block.nNonce   = 3677645;
         if(fTestNet)
         {
-            block.nNonce   = 13278;
+            block.nNonce   = 327733;
         }
 
         if ((block.GetHash() != hashGenesisBlock)) {
@@ -2484,9 +2484,8 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("block.nTime = %u \n", block.nTime);
         printf("block.nNonce = %u \n", block.nNonce);
 
-
         //// debug print
-        assert(block.hashMerkleRoot == uint256("0xfcf0c0968588de6f9f1ee1f86b4e0a4c013285383d0d2f00c3fac2497092093b"));
+        assert(block.hashMerkleRoot == uint256("0x2e953947cd107664f5a0bdc5ea99c3ce4537ed66cf04eb46eac7284e3b790a2e"));
         block.print();
         assert(block.GetHash() == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet));
         assert(block.CheckBlock());

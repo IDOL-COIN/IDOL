@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
         app.setApplicationName("IDOL-Qt");
 
     // ... then GUI settings:
-    OptionsModel optionsModel;	
+    OptionsModel optionsModel;
 
     // Get desired locale (e.g. "de_DE") from command line or use system locale
     QString lang_territory = QString::fromStdString(GetArg("-lang", QLocale::system().name().toStdString()));
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     ReadConfigFile(mapArgs, mapMultiArgs);
-	
+
     // Subscribe to global signals from core
     uiInterface.ThreadSafeMessageBox.connect(ThreadSafeMessageBox);
     uiInterface.ThreadSafeAskFee.connect(ThreadSafeAskFee);

@@ -27,7 +27,8 @@ namespace Checkpoints
     //
     static MapCheckpoints mapCheckpoints =
         boost::assign::map_list_of
-        ( 0,      hashGenesisBlock )
+        ( 0, hashGenesisBlock )
+        ( 5, uint256("0x0000029f17acbff55ea50cd6b8df33462d0581797afd836ec34194a214b1f795") )
     	;
 
     // TestNet has no checkpoints
@@ -187,7 +188,7 @@ namespace Checkpoints
         return false;
     }
 
-    // Automatically select a suitable sync-checkpoint 
+    // Automatically select a suitable sync-checkpoint
     uint256 AutoSelectSyncCheckpoint()
     {
         const CBlockIndex *pindex = pindexBest;
@@ -232,7 +233,7 @@ namespace Checkpoints
             return false;
         if (hashBlock == hashPendingCheckpoint)
             return true;
-        if (mapOrphanBlocks.count(hashPendingCheckpoint) 
+        if (mapOrphanBlocks.count(hashPendingCheckpoint)
             && hashBlock == WantedByOrphan(mapOrphanBlocks[hashPendingCheckpoint]))
             return true;
         return false;
@@ -290,7 +291,7 @@ namespace Checkpoints
     {
         if (fDebug)
             printf("SetCheckpointPrivKey()\n");
-        
+
         // Test signing a sync-checkpoint with genesis block
         CSyncCheckpoint checkpoint;
         checkpoint.hashCheckpoint = !fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet;
@@ -313,7 +314,7 @@ namespace Checkpoints
     {
         if (fDebug)
             printf("SendSyncCheckpoint()\n");
-        
+
         CSyncCheckpoint checkpoint;
         checkpoint.hashCheckpoint = hashCheckpoint;
         CDataStream sMsg(SER_NETWORK, PROTOCOL_VERSION);
@@ -355,7 +356,7 @@ namespace Checkpoints
     }
 }
 
-// ppcoin: sync-checkpoint master key                 
+// ppcoin: sync-checkpoint master key
 const std::string CSyncCheckpoint::strMasterPubKey = "02334512c0d7a9a69289c4b7ad1c76e5330ef9dacd9da912c91a853986bddf0434";
 
 std::string CSyncCheckpoint::strMasterPrivKey = "";

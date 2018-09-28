@@ -91,12 +91,12 @@ private:
     QStackedWidget *centralWidget;
 
     OverviewPage *overviewPage;
-	StatisticsPage *statisticsPage;
-	BlockBrowser *blockBrowser;
-	// MarketBrowser *marketBrowser;
+    StatisticsPage *statisticsPage;
+    BlockBrowser *blockBrowser;
+    // MarketBrowser *marketBrowser;
     QWidget *transactionsPage;
-	QWidget *mintingPage;
-	MultisigDialog *multisigPage;
+    QWidget *mintingPage;
+    MultisigDialog *multisigPage;
     AddressBookPage *addressBookPage;
     AddressBookPage *receiveCoinsPage;
     MessagePage *messagePage;
@@ -115,12 +115,12 @@ private:
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
-	QAction *statisticsAction;
-	QAction *blockAction;
-	// QAction *marketAction;
+    QAction *statisticsAction;
+    QAction *blockAction;
+    // QAction *marketAction;
     QAction *historyAction;
-	QAction *mintingAction;
-	QAction *multisigAction;
+    QAction *mintingAction;
+    QAction *multisigAction;
     QAction *quitAction;
     QAction *sendCoinsAction;
     QAction *addressBookAction;
@@ -143,7 +143,7 @@ private:
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
     TransactionView *transactionView;
-	MintingView *mintingView;
+    MintingView *mintingView;
     RPCConsole *rpcConsole;
 
     QMovie *syncIconMovie;
@@ -187,19 +187,19 @@ public slots:
 
     void mainToolbarOrientation(Qt::Orientation orientation);
     // void secondaryToolbarOrientation(Qt::Orientation orientation);
-	
-	void gotoMultisigPage();
+
+    void gotoMultisigPage();
 
 private slots:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
-	/** Switch to Statistics page */
-	void gotoStatisticsPage();
-	/** Switch to block explorer*/
+    /** Switch to Statistics page */
+    void gotoStatisticsPage();
+    /** Switch to block explorer*/
     void gotoBlockBrowser();
-	/** Switch to market*/
+    /** Switch to market*/
     // void gotoMarketBrowser();
-	/** Switch to minting page */
+    /** Switch to minting page */
     void gotoMintingPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
@@ -211,7 +211,7 @@ private slots:
     void gotoSendCoinsPage();
     /** Switch to message page */
     //void gotoMessagePage();
-	
+
     //void gotoChatPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */

@@ -146,11 +146,11 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Create tabs
     overviewPage = new OverviewPage();
-	statisticsPage = new StatisticsPage(this);
-	blockBrowser = new BlockBrowser(this);
-	// marketBrowser = new MarketBrowser(this);
-	multisigPage = new MultisigDialog(this);
-	//chatWindow = new ChatWindow(this);
+    statisticsPage = new StatisticsPage(this);
+    blockBrowser = new BlockBrowser(this);
+    // marketBrowser = new MarketBrowser(this);
+    multisigPage = new MultisigDialog(this);
+    //chatWindow = new ChatWindow(this);
 
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
@@ -158,7 +158,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     vbox->addWidget(transactionView);
     transactionsPage->setLayout(vbox);
 
-	mintingPage = new QWidget(this);
+    mintingPage = new QWidget(this);
     QVBoxLayout *vboxMinting = new QVBoxLayout();
     mintingView = new MintingView(this);
     vboxMinting->addWidget(mintingView);
@@ -176,15 +176,15 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     centralWidget = new QStackedWidget(this);
     centralWidget->addWidget(overviewPage);
     centralWidget->addWidget(transactionsPage);
-	centralWidget->addWidget(mintingPage);
+    centralWidget->addWidget(mintingPage);
     centralWidget->addWidget(addressBookPage);
     centralWidget->addWidget(receiveCoinsPage);
     centralWidget->addWidget(sendCoinsPage);
     centralWidget->addWidget(messagePage);
-	centralWidget->addWidget(statisticsPage);
-	centralWidget->addWidget(blockBrowser);
-	// centralWidget->addWidget(marketBrowser);
-	//centralWidget->addWidget(chatWindow);
+    centralWidget->addWidget(statisticsPage);
+    centralWidget->addWidget(blockBrowser);
+    // centralWidget->addWidget(marketBrowser);
+    //centralWidget->addWidget(chatWindow);
     setCentralWidget(centralWidget);
 
     // Create status bar
@@ -292,13 +292,13 @@ void BitcoinGUI::createActions()
     blockAction->setCheckable(true);
     tabGroup->addAction(blockAction);
 
-	// marketAction = new QAction(QIcon(":/icons/mark"), tr("&Market"), this);
+    // marketAction = new QAction(QIcon(":/icons/mark"), tr("&Market"), this);
     // marketAction->setToolTip(tr("Market Data"));
     // marketAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
     // marketAction->setCheckable(true);
     // tabGroup->addAction(marketAction);
 
-	//chatAction = new QAction(QIcon(":/icons/msg"), tr("&Social"), this);
+    //chatAction = new QAction(QIcon(":/icons/msg"), tr("&Social"), this);
     //chatAction->setToolTip(tr("View chat"));
     //chatAction->setCheckable(true);
     //tabGroup->addAction(chatAction);
@@ -344,15 +344,15 @@ void BitcoinGUI::createActions()
 
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
-	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
-	connect(statisticsAction, SIGNAL(triggered()), this, SLOT(gotoStatisticsPage()));
-	// connect(marketAction, SIGNAL(triggered()), this, SLOT(gotoMarketBrowser()));
-	//connect(chatAction, SIGNAL(triggered()), this, SLOT(gotoChatPage()));
+    connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
+    connect(statisticsAction, SIGNAL(triggered()), this, SLOT(gotoStatisticsPage()));
+    // connect(marketAction, SIGNAL(triggered()), this, SLOT(gotoMarketBrowser()));
+    //connect(chatAction, SIGNAL(triggered()), this, SLOT(gotoChatPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
-	connect(mintingAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(mintingAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(mintingAction, SIGNAL(triggered()), this, SLOT(gotoMintingPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
@@ -360,7 +360,7 @@ void BitcoinGUI::createActions()
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(gotoAddressBookPage()));
     /*connect(messageAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(messageAction, SIGNAL(triggered()), this, SLOT(gotoMessagePage()));*/
-	connect(multisigAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(multisigAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(multisigAction, SIGNAL(triggered()), this, SLOT(gotoMultisigPage()));
 
     quitAction = new QAction(QIcon(":/icons/quit"), tr("E&xit"), this);
@@ -368,7 +368,7 @@ void BitcoinGUI::createActions()
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
     aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About IDOLCOIN"), this);
-    aboutAction->setToolTip(tr("Show information about IDOLCOINCOIN"));
+    aboutAction->setToolTip(tr("Show information about IDOLCOIN"));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
@@ -424,14 +424,14 @@ void BitcoinGUI::createMenuBar()
     // Configure the menus
     QMenu *file = appMenuBar->addMenu(tr("&File"));
     file->addAction(exportAction);
-	file->addAction(multisigAction);
+    file->addAction(multisigAction);
     file->addAction(signMessageAction);
     file->addAction(verifyMessageAction);
     file->addAction(quitAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     settings->addAction(encryptWalletAction);
-	settings->addAction(backupWalletAction);
+    settings->addAction(backupWalletAction);
     settings->addAction(changePassphraseAction);
     settings->addAction(unlockWalletAction);
     settings->addAction(lockWalletAction);
@@ -529,18 +529,18 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         // Put transaction list in tabs
         transactionView->setModel(walletModel);
 
-		mintingView->setModel(walletModel);
+        mintingView->setModel(walletModel);
 
         overviewPage->setModel(walletModel);
         addressBookPage->setModel(walletModel->getAddressTableModel());
         receiveCoinsPage->setModel(walletModel->getAddressTableModel());
         sendCoinsPage->setModel(walletModel);
         signVerifyMessageDialog->setModel(walletModel);
-		statisticsPage->setModel(clientModel);
-		blockBrowser->setModel(clientModel);
-		// marketBrowser->setModel(clientModel);
-		multisigPage->setModel(walletModel);
-		//chatWindow->setModel(clientModel);
+        statisticsPage->setModel(clientModel);
+        blockBrowser->setModel(clientModel);
+        // marketBrowser->setModel(clientModel);
+        multisigPage->setModel(walletModel);
+        //chatWindow->setModel(clientModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
@@ -595,8 +595,8 @@ void BitcoinGUI::createTrayIcon()
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(sendCoinsAction);
     trayIconMenu->addAction(receiveCoinsAction);
-	trayIconMenu->addSeparator();
-	trayIconMenu->addAction(multisigAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(multisigAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(signMessageAction);
     trayIconMenu->addAction(verifyMessageAction);
@@ -987,7 +987,7 @@ void BitcoinGUI::gotoChatPage()
     chatAction->setChecked(true);
     centralWidget->setCurrentWidget(chatWindow);
 
-	exportAction->setEnabled(true);
+    exportAction->setEnabled(true);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
 
 }

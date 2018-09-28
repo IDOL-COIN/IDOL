@@ -1936,7 +1936,7 @@ KBあたり少なくとも手数料が%1必要になります。</translation>
     <message>
         <location line="+86"/>
         <source>&lt;b&gt;%1&lt;/b&gt; to %2 (%3)</source>
-        <translation>&lt;b&gt;%1&lt;/b&gt; から %2 (%3)に</translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; を %2 (%3)に</translation>
     </message>
     <message>
         <location line="+5"/>

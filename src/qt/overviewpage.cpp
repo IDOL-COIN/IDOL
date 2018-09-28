@@ -141,17 +141,17 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, unconfirmedBalance));
     ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, immatureBalance));
     ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
-	
-	// QString total;
-	// double dollarg2 = (dollarg.toDouble() * (balance + stake + unconfirmedBalance + immatureBalance) / 100000000);
-	// total = QString::number(dollarg2, 'f', 2);
-	// // ui->labelUSDTotal->setText("$" + total + " USD");
-	
+
+    // QString total;
+    // double dollarg2 = (dollarg.toDouble() * (balance + stake + unconfirmedBalance + immatureBalance) / 100000000);
+    // total = QString::number(dollarg2, 'f', 2);
+    // // ui->labelUSDTotal->setText("$" + total + " USD");
+
     //ui->labelBTCTotal->setText(BitcoinUnits::formatWithUnit(unitdBTC, bitcoing.toDouble() * (balance + stake + unconfirmedBalance + immatureBalance)));
     ui->labelTradeLink->setTextFormat(Qt::RichText);
     ui->labelTradeLink->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->labelTradeLink->setOpenExternalLinks(true);
-	
+
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = immatureBalance != 0;
