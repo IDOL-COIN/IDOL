@@ -33,3 +33,5 @@ PortIndex*
 dist
 *.app
 *.dmg
+
+!src/leveldb*/Makefile
