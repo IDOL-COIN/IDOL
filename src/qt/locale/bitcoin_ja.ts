@@ -1547,7 +1547,7 @@ KBあたり少なくとも手数料が%1必要になります。</translation>
     <message>
         <location line="+34"/>
         <source>transaction is too young</source>
-        <translation>抽選対象外(熟成前)</translation>
+        <translation>熟成前(抽選対象外)</translation>
     </message>
     <message>
         <location line="+7"/>

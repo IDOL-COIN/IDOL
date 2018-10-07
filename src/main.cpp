@@ -37,7 +37,7 @@ set<pair<COutPoint, unsigned int> > setStakeSeen;
 
 CBigNum bnProofOfWorkLimit(~uint256(0) >> 20);      // "standard" scrypt target limit for proof of work, results with 0,000244140625 proof-of-work difficulty
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
-CBigNum bnProofOfWorkLimitTestNet(~uint256(0) >> 16);
+CBigNum bnProofOfWorkLimitTestNet(~uint256(0) >> 1);
 
 // Block Variables
 
@@ -1047,10 +1047,68 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
     return pindex;
 }
 
+// LWMA for BTC clones
+// Copyright (c) 2017-2018 The Bitcoin Gold developers
+// Copyright (c) 2018 Zawy (M.I.T license continued)
+// Algorithm by zawy, a modification of WT-144 by Tom Harding
+// Code by h4x3rotab of BTC Gold, modified/updated by zawy
+// https://github.com/zawy12/difficulty-algorithms/issues/3#issuecomment-388386175
+//  FTL must be changed to 300 or N*T/20 whichever is higher.
+//  FTL in BTC clones is MAX_FUTURE_BLOCK_TIME in chain.h.
+//  FTL in Ignition, Numus, and others can be found in main.h as DRIFT.
+//  FTL in Zcash & Dash clones need to change the 2*60*60 here:
+//  if (block.GetBlockTime() > nAdjustedTime + 2 * 60 * 60)
+//  which is around line 3450 in main.cpp in ZEC and validation.cpp in Dash
+
+unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast)
+{   
+    CBigNum bnTargetLimit = bnProofOfWorkLimit;
+    const int64_t T = 60;
+    // N=45 for T=600.  N=60 for T=150.  N=90 for T=60. 
+    const int64_t N = 45; 
+    const int64_t k = N*(N+1)*T/2; // BTG's code has a missing N here. They inserted it in the loop
+    const int height = pindexLast->nHeight;
+    assert(height > N);
+
+    CBigNum sum_target;
+    int64_t t = 0, j = 0, solvetime;
+
+    CBlockIndex* block = pindexLast->pprev;
+    for (int i = 0; i < N-1; i++) {
+        block = block->pprev;
+    }
+
+    // Loop through N most recent blocks. 
+    for (int i = height - N+1; i <= height; i++) {
+        block = block->pnext;
+        CBlockIndex* block_Prev = block->pprev;
+        solvetime = block->GetBlockTime() - block_Prev->GetBlockTime();
+        solvetime = std::max(-6*T, std::min(solvetime, 6*T));
+        j++;
+        t += solvetime * j;  // Weighted solvetime sum.
+        CBigNum target;
+        target.SetCompact(block->nBits);
+        sum_target += target / (k * N); // BTG added the missing N back here.
+    }
+    // Keep t reasonable to >= 1/10 of expected t.
+    if (t < k/10 ) {   t = k/10;  }
+    CBigNum next_target = t * sum_target;
+    
+    if (next_target <= 0 || next_target > bnTargetLimit)
+        next_target = bnTargetLimit;
+
+    return next_target.GetCompact();
+}
+
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-    CBigNum bnTargetLimit = fProofOfStake ? bnProofOfStakeLimit : bnProofOfWorkLimit;
+    if (pindexLast->nHeight > 17175 + 15000 && !fProofOfStake){
+        return LwmaCalculateNextWorkRequired(pindexLast);
+    }
 
+
+    CBigNum bnTargetLimit = fProofOfStake ? bnProofOfStakeLimit : bnProofOfWorkLimit;
+    
     if (pindexLast == NULL)
         return bnTargetLimit.GetCompact(); // genesis block
 

@@ -353,13 +353,13 @@ QVariant MintingTableModel::data(const QModelIndex &index, int role) const
         }
         break;
       case Qt::BackgroundColorRole:
-        int minAge = nStakeMinAge / 60 / 60 / 8;
+        int minAge = nStakeMinAge / 60 / 60 / 24;
         int maxAge = nStakeMaxAge / 60 / 60 / 24;
         if(rec->getAge() < minAge)
         {
             return COLOR_MINT_YOUNG;
         }
-        else if (rec->getAge() >= minAge && rec->getAge() < (maxAge + minAge))
+        else if (rec->getAge() >= minAge && (nStakeMaxAge < 0 || rec->getAge() < (maxAge + minAge)))
         {
             return COLOR_MINT_MATURE;
         }
@@ -397,8 +397,8 @@ QString MintingTableModel::formatTxPoSReward(KernelRecord *wtx) const
 {
     QString posReward;
     int nBits = GetLastBlockIndex(pindexBest, true)->nBits;
-    posReward += QString(QObject::tr("from  %1 to %2")).arg(BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), wtx->getPoSReward(nBits, 0)), 
-        BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), wtx->getPoSReward(nBits, mintingInterval))); 
+    posReward += QString(QObject::tr("from  %1 to %2")).arg(BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), wtx->getPoSReward(nBits, 0)),
+        BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), wtx->getPoSReward(nBits, mintingInterval)));
     return posReward;
 }
 

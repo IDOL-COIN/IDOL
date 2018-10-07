@@ -41,10 +41,6 @@ QWidget
     border: 0px transparent blue;
     outline: 0;
 }
-QWidget:item
-{
-    background-color: #fbfbfb;
-}
 QWidget:item:hover
 {
     background-color: #dbdbdb; opacity: 0.5;

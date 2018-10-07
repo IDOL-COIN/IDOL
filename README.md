@@ -34,5 +34,4 @@ LINKS
 ==========================
 * Official Website(https://idol-coin.io/)
 * Official Forums(https://discordapp.com/invite/tB9yA2g)
-* IDOL Twitter(https://twitter.com/IDOL_COIN_)
-
+* IDOL Twitter([https://twitter.com/IDOL_COIN_](https://twitter.com/IDOL_COIN_))

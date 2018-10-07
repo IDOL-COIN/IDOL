@@ -679,20 +679,18 @@ Value move_scmd(const Array& params, bool fHelp)
     string strFrom = AccountFromValue(params[0]);
     string strTo = AccountFromValue(params[1]);
     int64_t nAmount = AmountFromValue(params[2]);
-
+    int nMinDepth = 1;
     if (params.size() > 3)
-        // unused parameter, used to be nMinDepth, keep type-checking it though
-        (void)params[3].get_int();
+        nMinDepth = params[3].get_int();
     string strComment;
     if (params.size() > 4)
         strComment = params[4].get_str();
-
     CWalletDB walletdb(pwalletMain->strWalletFile);
     if (!walletdb.TxnBegin())
         throw JSONRPCError(RPC_DATABASE_ERROR, "database error");
 
     string strAccount = AccountFromValue(params[0]);
-    int nMinDepth = 1;
+    
     int64_t nBalance = GetAccountBalance(strAccount, nMinDepth);
     //return strFrom;
     int64_t nNow = GetAdjustedTime();

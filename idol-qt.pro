@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = IDOL
-VERSION = 1.0.0
+VERSION = 1.0.1
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
@@ -20,19 +20,19 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32 {
-BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
-BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
-BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
-BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
-BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
-OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1j/include
-OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1j
-MINIUPNPC_INCLUDE_PATH=C:/deps/
-MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
-LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.16
-LIBPNG_LIB_PATH=C:/deps/libpng-1.6.16/.libs
-QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
-QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
+    BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
+    BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
+    BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
+    BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+    BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1j/include
+    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1j
+    MINIUPNPC_INCLUDE_PATH=C:/deps/
+    MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
+    LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.16
+    LIBPNG_LIB_PATH=C:/deps/libpng-1.6.16/.libs
+    QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
+    QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
 }
 
 # for boost 1.37, add -mt to the boost libraries
@@ -61,11 +61,11 @@ contains(RELEASE, 1) {
 }
 
 !win32 {
-# for extra security against potential buffer overflows: enable GCCs Stack Smashing Protection
-QMAKE_CXXFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
-QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
-# We need to exclude this for Windows cross compile with MinGW 4.2.x, as it will result in a non-working executable!
-# This can be enabled for Windows, when we switch to MinGW >= 4.4.x.
+    # for extra security against potential buffer overflows: enable GCCs Stack Smashing Protection
+    QMAKE_CXXFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
+    QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
+    # We need to exclude this for Windows cross compile with MinGW 4.2.x, as it will result in a non-working executable!
+    # This can be enabled for Windows, when we switch to MinGW >= 4.4.x.
 }
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
 win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
@@ -125,48 +125,48 @@ contains(BITCOIN_NEED_QT_PLUGINS, 1) {
 }
 
 contains(USE_LEVELDB, 1) {
-	message(Building with LevelDB transaction index)
-	count(USE_LEVELDB, 0) {
+    message(Building with LevelDB transaction index)
+    count(USE_LEVELDB, 0) {
         USE_LEVELDB=1
     }
 
-	DEFINES += USE_LEVELDB
+    DEFINES += USE_LEVELDB
 
     INCLUDEPATH += src/leveldb/include src/leveldb/helpers
-	LIBS += $$PWD/src/leveldb/libleveldb.a $$PWD/src/leveldb/libmemenv.a
-	SOURCES += src/txdb-leveldb.cpp \
-		src/bloom.cpp \
-		src/hash.cpp \
-		src/aes_helper.c \
-		src/echo.c \
-		src/jh.c \
-		src/keccak.c
-	!win32 {
-		# we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
-		genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
-	} else {
-		# make an educated guess about what the ranlib command is called
-		isEmpty(QMAKE_RANLIB) {
-			QMAKE_RANLIB = $$replace(QMAKE_STRIP, strip, ranlib)
-		}
-		LIBS += -lshlwapi
-		genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
-	}
-	genleveldb.target = $$PWD/src/leveldb/libleveldb.a
-	genleveldb.depends = FORCE
-	PRE_TARGETDEPS += $$PWD/src/leveldb/libleveldb.a
-	QMAKE_EXTRA_TARGETS += genleveldb
-	# Gross ugly hack that depends on qmake internals, unfortunately there is no other way to do it.
+    LIBS += $$PWD/src/leveldb/libleveldb.a $$PWD/src/leveldb/libmemenv.a
+    SOURCES += src/txdb-leveldb.cpp \
+        src/bloom.cpp \
+        src/hash.cpp \
+        src/aes_helper.c \
+        src/echo.c \
+        src/jh.c \
+        src/keccak.c
+    !win32 {
+        # we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
+        genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
+    } else {
+        # make an educated guess about what the ranlib command is called
+        isEmpty(QMAKE_RANLIB) {
+            QMAKE_RANLIB = $$replace(QMAKE_STRIP, strip, ranlib)
+        }
+        LIBS += -lshlwapi
+        genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
+    }
+    genleveldb.target = $$PWD/src/leveldb/libleveldb.a
+    genleveldb.depends = FORCE
+    PRE_TARGETDEPS += $$PWD/src/leveldb/libleveldb.a
+    QMAKE_EXTRA_TARGETS += genleveldb
+    # Gross ugly hack that depends on qmake internals, unfortunately there is no other way to do it.
     QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) clean
 } else {
     message(Building with Berkeley DB transaction index)
     SOURCES += src/txdb-bdb.cpp \
-		src/bloom.cpp \
-		src/hash.cpp \
-		src/aes_helper.c \
-		src/echo.c \
-		src/jh.c \
-		src/keccak.c
+        src/bloom.cpp \
+        src/hash.cpp \
+        src/aes_helper.c \
+        src/echo.c \
+        src/jh.c \
+        src/keccak.c
 }
 
 # regenerate src/build.h
@@ -189,7 +189,6 @@ contains(USE_O3, 1) {
 
 *-g++-32 {
     message("32 platform, adding -msse2 flag")
-
     QMAKE_CXXFLAGS += -msse2
     QMAKE_CFLAGS += -msse2
 }
@@ -200,7 +199,7 @@ QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wno-ignored-qu
 # Input
 DEPENDPATH += src src/json src/qt
 HEADERS += src/qt/bitcoingui.h \
-	src/qt/intro.h \
+    src/qt/intro.h \
     src/qt/transactiontablemodel.h \
     src/qt/addresstablemodel.h \
     src/qt/optionsdialog.h \
@@ -212,11 +211,11 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/aboutdialog.h \
     src/qt/editaddressdialog.h \
     src/qt/bitcoinaddressvalidator.h \
-	src/kernelrecord.h \
-	src/qt/mintingfilterproxy.h \
+    src/kernelrecord.h \
+    src/qt/mintingfilterproxy.h \
     src/qt/mintingtablemodel.h \
     src/qt/mintingview.h \
-	src/qt/multisigaddressentry.h \
+    src/qt/multisigaddressentry.h \
     src/qt/multisiginputentry.h \
     src/qt/multisigdialog.h \
     src/alert.h \
@@ -286,17 +285,17 @@ HEADERS += src/qt/bitcoingui.h \
     src/ui_interface.h \
     src/qt/rpcconsole.h \
     src/qt/trafficgraphwidget.h \
-	src/qt/blockbrowser.h \
-	src/qt/statisticspage.h \
+    src/qt/blockbrowser.h \
+    src/qt/statisticspage.h \
     src/version.h \
-	src/bloom.h \
+    src/bloom.h \
     src/netbase.h \
     src/clientversion.h \
-	src/hash.h \
+    src/hash.h \
     src/hashblock.h \
-	src/sph_echo.h \
-	src/sph_keccak.h \
-	src/sph_jh.h \
+    src/sph_echo.h \
+    src/sph_keccak.h \
+    src/sph_jh.h \
     src/sph_types.h \
     src/threadsafety.h \
     src/qt/messagepage.h \
@@ -307,7 +306,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/qvalidatedtextedit.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
-	src/qt/intro.cpp \
+    src/qt/intro.cpp \
     src/qt/transactiontablemodel.cpp \
     src/qt/addresstablemodel.cpp \
     src/qt/optionsdialog.cpp \
@@ -319,13 +318,13 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/aboutdialog.cpp \
     src/qt/editaddressdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
-	src/qt/statisticspage.cpp \
-	src/qt/blockbrowser.cpp \
-	src/kernelrecord.cpp \
-	src/qt/mintingfilterproxy.cpp \
+    src/qt/statisticspage.cpp \
+    src/qt/blockbrowser.cpp \
+    src/kernelrecord.cpp \
+    src/qt/mintingfilterproxy.cpp \
     src/qt/mintingtablemodel.cpp \
     src/qt/mintingview.cpp \
-	src/qt/multisigaddressentry.cpp \
+    src/qt/multisigaddressentry.cpp \
     src/qt/multisiginputentry.cpp \
     src/qt/multisigdialog.cpp \
     src/alert.cpp \
@@ -402,7 +401,7 @@ RESOURCES += \
     src/qt/res/themes/qlightstyle/style.qrc
 
 FORMS += \
-	src/qt/forms/intro.ui \
+    src/qt/forms/intro.ui \
     src/qt/forms/coincontroldialog.ui \
     src/qt/forms/sendcoinsdialog.ui \
     src/qt/forms/addressbookpage.ui \
@@ -416,9 +415,9 @@ FORMS += \
     src/qt/forms/rpcconsole.ui \
     src/qt/forms/optionsdialog.ui \
     src/qt/forms/messagepage.ui \
-	src/qt/forms/statisticspage.ui \
-	src/qt/forms/blockbrowser.ui \
-	src/qt/forms/multisigaddressentry.ui \
+    src/qt/forms/statisticspage.ui \
+    src/qt/forms/blockbrowser.ui \
+    src/qt/forms/multisigaddressentry.ui \
     src/qt/forms/multisiginputentry.ui \
     src/qt/forms/multisigdialog.ui \
     src/qt/forms/sendmessagesentry.ui \
@@ -426,9 +425,9 @@ FORMS += \
     src/qt/plugins/mrichtexteditor/mrichtextedit.ui
 
 contains(USE_QRCODE, 1) {
-HEADERS += src/qt/qrcodedialog.h
-SOURCES += src/qt/qrcodedialog.cpp
-FORMS += src/qt/forms/qrcodedialog.ui
+    HEADERS += src/qt/qrcodedialog.h
+    SOURCES += src/qt/qrcodedialog.cpp
+    FORMS += src/qt/forms/qrcodedialog.ui
 }
 
 CODECFORTR = UTF-8

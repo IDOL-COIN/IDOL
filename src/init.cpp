@@ -177,6 +177,7 @@ bool AppInit(int argc, char* argv[])
         }
 
 #if !defined(WIN32) && !defined(QT_GUI)
+        fDaemon = GetBoolArg("-daemon", false);
         if (fDaemon)
         {
             // Daemonize

@@ -41,12 +41,12 @@ MintingView::MintingView(QWidget *parent) :
     QLabel *matureLegend = new QLabel(tr("transaction is mature"));
     matureLegend->setContentsMargins(5,0,15,0);
 
-    QLabel *oldColor = new QLabel(" ");
+    /*QLabel *oldColor = new QLabel(" ");
     oldColor->setMaximumHeight(15);
     oldColor->setMaximumWidth(10);
     oldColor->setStyleSheet(legendBoxStyle.arg(COLOR_MINT_OLD.red()).arg(COLOR_MINT_OLD.green()).arg(COLOR_MINT_OLD.blue()));
     QLabel *oldLegend = new QLabel(tr("transaction has reached maximum probability"));
-    oldLegend->setContentsMargins(5,0,15,0);
+    oldLegend->setContentsMargins(5,0,15,0);*/
 
     QHBoxLayout *legendLayout = new QHBoxLayout();
     legendLayout->setContentsMargins(10,10,0,0);
@@ -54,8 +54,8 @@ MintingView::MintingView(QWidget *parent) :
     legendLayout->addWidget(youngLegend);
     legendLayout->addWidget(matureColor);
     legendLayout->addWidget(matureLegend);
-    legendLayout->addWidget(oldColor);
-    legendLayout->addWidget(oldLegend);
+    /*legendLayout->addWidget(oldColor);
+    legendLayout->addWidget(oldLegend);*/
     legendLayout->insertStretch(-1);
 
     /*QLabel *label1 = new QLabel(this);
@@ -240,13 +240,13 @@ void MintingView::copyAddress()
 
 void MintingView::showHideAddress()
 {
-    mintingView->horizontalHeader()->setSectionHidden(MintingTableModel::Address, 
+    mintingView->horizontalHeader()->setSectionHidden(MintingTableModel::Address,
         !(mintingView->horizontalHeader()->isSectionHidden(MintingTableModel::Address)));
 }
 
 void MintingView::showHideTxID()
 {
-    mintingView->horizontalHeader()->setSectionHidden(MintingTableModel::TxHash, 
+    mintingView->horizontalHeader()->setSectionHidden(MintingTableModel::TxHash,
         !(mintingView->horizontalHeader()->isSectionHidden(MintingTableModel::TxHash)));
 }
 
