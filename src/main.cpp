@@ -987,12 +987,16 @@ int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees)
     if (pindexBest->nHeight > (YEARLY_BLOCKCOUNT*8)) // Over 8 years.
         return nFees;
 
-    int64_t nRewardCoinYear;
-    nRewardCoinYear = COIN_YEAR_REWARD; // 15%
-    double nSubsidyLeft = (double)((MAX_MONEY - pindexBest->nMoneySupply) / COIN) / (double)37700000000; // Missing COIN so it retains precision
+    int64_t nSubsidy;
+    if (pindexBest->nHeight < 17175 + 15000 && !fTestNet){
+        int64_t nRewardCoinYear = COIN_YEAR_REWARD; // 15%
+        double nSubsidyLeft = (double)((MAX_MONEY - pindexBest->nMoneySupply) / COIN) / (double)37700000000; // Missing COIN so it retains precision
 
-    int64_t nSubsidy = nSubsidyLeft * nCoinAge * nRewardCoinYear / 365; // divide by COIN because of nSubsidyLeft
-
+        nSubsidy = nSubsidyLeft * nCoinAge * nRewardCoinYear / 365; // divide by COIN because of nSubsidyLeft
+    }else {
+        int64_t nRewardCoinYear = COIN_YEAR_REWARD;
+        nSubsidy = ((((MAX_MONEY - pindexBest->nMoneySupply) / COIN) * nCoinAge) / 37700000000) * nRewardCoinYear / 365;
+    }
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
 
@@ -1060,7 +1064,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 //  if (block.GetBlockTime() > nAdjustedTime + 2 * 60 * 60)
 //  which is around line 3450 in main.cpp in ZEC and validation.cpp in Dash
 
-unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast)
+unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {   
     CBigNum bnTargetLimit = bnProofOfWorkLimit;
     const int64_t T = 60;
@@ -1072,38 +1076,51 @@ unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast)
 
     CBigNum sum_target;
     int64_t t = 0, j = 0, solvetime;
-
-    CBlockIndex* block = pindexLast->pprev;
-    for (int i = 0; i < N-1; i++) {
-        block = block->pprev;
+    const CBlockIndex* pindexC = GetLastBlockIndex(pindexLast, fProofOfStake);
+    std::vector<const CBlockIndex*> SameAlgoBlocks;
+    for (int c = height-1; SameAlgoBlocks.size() < (N + 1); c--){
+        if (c < 100 || pindexC == NULL){ // If there are not enough blocks with this algo, return with an algo that *can* use less blocks
+            return (fProofOfStake ? bnProofOfStakeLimit : bnProofOfWorkLimit).GetCompact();
+        }
+        SameAlgoBlocks.push_back(pindexC);
+        pindexC = GetLastBlockIndex(pindexC->pprev, fProofOfStake);
     }
 
-    // Loop through N most recent blocks. 
-    for (int i = height - N+1; i <= height; i++) {
-        block = block->pnext;
-        CBlockIndex* block_Prev = block->pprev;
+    // Creates vector with {block1000, block997, block993}, so we start at the back
+
+    // Loop through N most recent blocks. starting with the lowest blockheight
+    for (int i = N; i > 0; i--) {
+        const CBlockIndex* block = SameAlgoBlocks[i-1]; // pindexLast->GetAncestor(i);
+        const CBlockIndex* block_Prev = SameAlgoBlocks[i]; //block->GetAncestor(i - 1);
         solvetime = block->GetBlockTime() - block_Prev->GetBlockTime();
         solvetime = std::max(-6*T, std::min(solvetime, 6*T));
+        
         j++;
         t += solvetime * j;  // Weighted solvetime sum.
+
+        // Target sum divided by a factor, (k N^2).
+        // The factor is a part of the final equation. However we divide sum_target here to avoid
+        // potential overflow.
         CBigNum target;
         target.SetCompact(block->nBits);
-        sum_target += target / (k * N); // BTG added the missing N back here.
+        sum_target += target / (k * N);
     }
-    // Keep t reasonable to >= 1/10 of expected t.
+    // Keep t reasonable in case strange solvetimes occurred.
     if (t < k/10 ) {   t = k/10;  }
+
+    const CBigNum pow_limit = fProofOfStake ? bnProofOfStakeLimit : bnProofOfWorkLimit;
     CBigNum next_target = t * sum_target;
-    
-    if (next_target <= 0 || next_target > bnTargetLimit)
-        next_target = bnTargetLimit;
+    if (next_target > pow_limit) {
+        next_target = pow_limit;
+    }
 
     return next_target.GetCompact();
 }
 
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-    if (pindexLast->nHeight > 17175 + 15000 && !fProofOfStake){
-        return LwmaCalculateNextWorkRequired(pindexLast);
+    if (pindexLast->nHeight > 17175 + 15000){
+        return LwmaCalculateNextWorkRequired(pindexLast, fProofOfStake);
     }
 
 
@@ -1587,7 +1604,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, nFees);
 
-        if (nStakeReward > nCalculatedStakeReward)
+        if (nStakeReward > nCalculatedStakeReward+5)
             return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%" PRId64 " vs calculated=%" PRId64 ")", nStakeReward, nCalculatedStakeReward));
     }
 

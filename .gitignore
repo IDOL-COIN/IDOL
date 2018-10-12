@@ -1,4 +1,5 @@
 IDOL
+./Makefile
 src/*.exe
 src/IDOL
 src/IDOLd
