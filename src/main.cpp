@@ -989,13 +989,16 @@ int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees)
 
     int64_t nSubsidy;
     if (pindexBest->nHeight < 17175 + 15000 && !fTestNet){
-        int64_t nRewardCoinYear = COIN_YEAR_REWARD; // 15%
+        int64_t nRewardCoinYear = COIN_YEAR_REWARD;
         double nSubsidyLeft = (double)((MAX_MONEY - pindexBest->nMoneySupply) / COIN) / (double)37700000000; // Missing COIN so it retains precision
 
         nSubsidy = nSubsidyLeft * nCoinAge * nRewardCoinYear / 365; // divide by COIN because of nSubsidyLeft
-    }else {
+    }else if (pindexBest->nHeight < 64800 && !fTestNet){
         int64_t nRewardCoinYear = COIN_YEAR_REWARD;
         nSubsidy = ((((MAX_MONEY - pindexBest->nMoneySupply) / COIN) * nCoinAge) / 37700000000) * nRewardCoinYear / 365;
+    }else {
+      int64_t nRewardCoinYear = COIN_YEAR_REWARD * ((MAX_MONEY - pindexBest->nMoneySupply) / COIN) / 37700000000;
+      nSubsidy = nCoinAge * nRewardCoinYear / 365;
     }
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
@@ -1065,11 +1068,11 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 //  which is around line 3450 in main.cpp in ZEC and validation.cpp in Dash
 
 unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
-{   
+{
     CBigNum bnTargetLimit = bnProofOfWorkLimit;
     const int64_t T = 60;
-    // N=45 for T=600.  N=60 for T=150.  N=90 for T=60. 
-    const int64_t N = 45; 
+    // N=45 for T=600.  N=60 for T=150.  N=90 for T=60.
+    const int64_t N = 45;
     const int64_t k = N*(N+1)*T/2; // BTG's code has a missing N here. They inserted it in the loop
     const int height = pindexLast->nHeight;
     assert(height > N);
@@ -1094,7 +1097,7 @@ unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast, bool f
         const CBlockIndex* block_Prev = SameAlgoBlocks[i]; //block->GetAncestor(i - 1);
         solvetime = block->GetBlockTime() - block_Prev->GetBlockTime();
         solvetime = std::max(-6*T, std::min(solvetime, 6*T));
-        
+
         j++;
         t += solvetime * j;  // Weighted solvetime sum.
 
@@ -1125,7 +1128,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 
 
     CBigNum bnTargetLimit = fProofOfStake ? bnProofOfStakeLimit : bnProofOfWorkLimit;
-    
+
     if (pindexLast == NULL)
         return bnTargetLimit.GetCompact(); // genesis block
 
