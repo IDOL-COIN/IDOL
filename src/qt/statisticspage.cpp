@@ -62,7 +62,7 @@ void StatisticsPage::updateStatistics()
         phase = "Proof of Stake";
     }
 
-    QString subsidy = QString("%1 IDOL").arg(QString::number(GetProofOfStakeReward(COIN, 0)/COIN)); // 1 Coin-Day
+    QString subsidy = QString("%1 IDOL").arg(QString::number(GetProofOfStakeReward(COIN, 0, pindexBest)/COIN)); // 1 Coin-Day
     QString hardness = QString::number(pHardness, 'f', 6);
     QString hardness2 = QString::number(pHardness2, 'f', 6);
     QString pawrate = QString::number(pPawrate2, 'f', 3);
@@ -105,14 +105,14 @@ void StatisticsPage::updateStatistics()
         ui->rewardBox->setText("<b><font color=\"darkorange\">" + subsidy + "</font></b>");
     }
 
-    if(pHardness > hardnessPrevious)
+    /*if(pHardness > hardnessPrevious)
     {
         ui->diffBox->setText("<b><font color=\"darkgoldenrod\">" + hardness + "</font></b>");
     } else if(pHardness < hardnessPrevious) {
         ui->diffBox->setText("<b><font color=\"brown\">" + hardness + "</font></b>");
     } else {
         ui->diffBox->setText("<b><font color=\"darkorange\">" + hardness + "</font></b>");
-    }
+    }*/
 
     // if(marketcap > marketcapPrevious)
     // {
@@ -132,14 +132,14 @@ void StatisticsPage::updateStatistics()
         ui->diffBox2->setText("<b><font color=\"darkorange\">" + hardness2 + "</font></b>");
     }
 
-    if(pPawrate2 > netPawratePrevious)
+    /*if(pPawrate2 > netPawratePrevious)
     {
         ui->pawrateBox->setText("<b><font color=\"darkgoldenrod\">" + pawrate + " MH/s</font></b>");
     } else if(pPawrate2 < netPawratePrevious) {
         ui->pawrateBox->setText("<b><font color=\"brown\">" + pawrate + " MH/s</font></b>");
     } else {
         ui->pawrateBox->setText("<b><font color=\"darkorange\">" + pawrate + " MH/s</font></b>");
-    }
+    }*/
 
     if(Qlpawrate != pawratePrevious)
     {

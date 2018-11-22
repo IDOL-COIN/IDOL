@@ -143,20 +143,6 @@ font-family:'Open Sans,sans-serif';</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;POW difficulty&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="diffBox">
-          <property name="text">
-           <string>0.0002</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
@@ -168,13 +154,6 @@ font-family:'Open Sans,sans-serif';</string>
          <widget class="QLabel" name="diffBox2">
           <property name="text">
            <string>0.0002</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLabel" name="pawrateBox">
-          <property name="text">
-           <string>0 MH/s</string>
           </property>
          </widget>
         </item>
@@ -265,13 +244,6 @@ font-family:'Open Sans,sans-serif';</string>
          <widget class="QLabel" name="cBox">
           <property name="text">
            <string>POW-POS</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Net Hashrate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
