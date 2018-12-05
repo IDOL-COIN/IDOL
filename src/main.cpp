@@ -2880,14 +2880,15 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             vRecv >> addrFrom >> nNonce;
        if (!vRecv.empty())
             vRecv >> pfrom->strSubVer;
-            const char* subver = pfrom->strSubVer.c_str();
-            if(strstr(subver, "IDOLCOIN") == NULL) {
-                printf("%s is not IDOLCOIN CLIENT\n",subver);
-                pfrom->fDisconnect = true;
-                return false;
-            }
         if (!vRecv.empty())
             vRecv >> pfrom->nStartingHeight;
+
+        if (pfrom->strSubVer.find("IDOLCOIN") == std::string::npos)
+        {
+            printf("partner %s using unknown wallet %s; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->strSubVer.c_str());
+            pfrom->fDisconnect = true;
+            return false;
+        }
 
         if (pfrom->fInbound && addrMe.IsRoutable())
         {
