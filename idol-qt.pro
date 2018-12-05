@@ -7,6 +7,7 @@ CONFIG += no_include_pwd
 CONFIG += thread
 QT += core gui network widgets
 
+QMAKE_CXXFLAGS += -std=c++11
 
 USE_LEVELDB=1
 !macx:USE_QRCODE=1
