@@ -1,5 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2011-2018 The Peercoin developers
 // Copyright (c) 2018 IDOLCOIN Developers
+// Copyright (c) 2018 Cure Chain
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,12 +15,14 @@
 #include "kernel.h"
 #include "smessage.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 
 using namespace std;
 using namespace boost;
+using boost::multiprecision::cpp_int;
 
 //
 // Global state
@@ -966,13 +970,12 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 {
     int64_t nSubsidy = 0;                          // default Rewards is 0
+    int nPrevHeight = nHeight - 1;
 
-    if (nBestHeight == 1)
+    if (nPrevHeight == 1)
         nSubsidy = 40000000000 * COIN;             // 40B Premine
-    else if (nBestHeight <= LAST_POW_BLOCK)// Minimal distribution in PoW Phase
+    else if (nPrevHeight < LAST_POW_BLOCK)         // Minimal distribution in PoW Phase
         nSubsidy = 2000 * COIN;                    // Mining Rewards
-    else if (nBestHeight > LAST_POW_BLOCK)
-        nSubsidy = 0;                              // PoW Ends ~ 129,600 Total IDOL Mined via PoW
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfWorkReward() : create=%s nSubsidy=%" PRId64 "\n", FormatMoney(nSubsidy).c_str(), nSubsidy);
 
@@ -982,28 +985,25 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 const int YEARLY_BLOCKCOUNT = 525601; // Amount of Blocks per year
 
 // Proof of Stake miner's coin stake reward based on coin age spent (coin-days)
-const static int HARDFORK_BLOCK = 107200;
-int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, const CBlockIndex* pindex)
+int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, const CBlockIndex *pindex)
 {
-    if (pindex->nHeight > (YEARLY_BLOCKCOUNT*8)) // Over 8 years.
+    if (pindex->nHeight > (YEARLY_BLOCKCOUNT * 8)) // Over 8 years.
         return nFees;
 
     int64_t nSubsidy;
-    if (pindex->nHeight < 17175 + 15000 && !fTestNet){
-        int64_t nRewardCoinYear = COIN_YEAR_REWARD;
-        double nSubsidyLeft = (double)((MAX_MONEY - pindex->nMoneySupply) / COIN) / (double)37700000000; // Missing COIN so it retains precision
 
-        nSubsidy = nSubsidyLeft * nCoinAge * nRewardCoinYear / 365; // divide by COIN because of nSubsidyLeft
-    }else if (pindex->nHeight < 64800 && !fTestNet){
-        int64_t nRewardCoinYear = COIN_YEAR_REWARD;
-        nSubsidy = ((((MAX_MONEY - pindex->nMoneySupply) / COIN) * nCoinAge) / 37700000000) * nRewardCoinYear / 365;
-    }else if (pindex->nHeight < HARDFORK_BLOCK && !fTestNet){
-      int64_t nRewardCoinYear = COIN_YEAR_REWARD * ((MAX_MONEY - pindex->nMoneySupply) / COIN) / 37700000000;
-      nSubsidy = nCoinAge * nRewardCoinYear / 365;
-    }else {
-      int64_t nRewardCoinYear = COIN_YEAR_REWARD;
-      nSubsidy = nCoinAge * nRewardCoinYear / 365;
+    if (pindex->nHeight < HARDFORK_BLOCK || (fTestNet && pindex->nHeight < HARDFORK_BLOCK_TESTNET)) {
+        // FIXME: heavy workaround
+        // the original implementation cause floating point error on some platforms.
+        // * Intel Skylake: :)
+        // * Intel Avoton: :)
+        // * Intel Haswell: affected
+        // ((MAX_MONEY - nMoneySupply) / COIN) / 37700000000 * nCoinAge * COIN_YEAR_REWARD / 365
+        nSubsidy = static_cast<int64_t>(static_cast<cpp_int>(MAX_MONEY - pindex->nMoneySupply) * nCoinAge * 3 / 344012500000000);
+    } else {
+        nSubsidy = nCoinAge * COIN_YEAR_REWARD / 365;
     }
+
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
 
@@ -1609,9 +1609,9 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         if (!vtx[1].GetCoinAge(txdb, nCoinAge))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", vtx[1].GetHash().ToString().substr(0,10).c_str());
 
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, nFees, pindex);
+        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, nFees, pindex->pprev);
 
-        if (nStakeReward > nCalculatedStakeReward+5)
+        if (nStakeReward > nCalculatedStakeReward)
             return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%" PRId64 " vs calculated=%" PRId64 ")", nStakeReward, nCalculatedStakeReward));
     }
 
@@ -2245,6 +2245,31 @@ bool CBlockIndex::IsSuperMajority(int minVersion, const CBlockIndex* pstart, uns
     return (nFound >= nRequired);
 }
 
+// Remove a random orphan block (which does not have any dependent orphans).
+void static PruneOrphanBlocks()
+{
+    if (mapOrphanBlocksByPrev.size() <= (size_t) std::max((int64_t)0, GetArg("-maxorphanblocks", DEFAULT_MAX_ORPHAN_BLOCKS)))
+        return;
+
+    // Pick a random orphan block.
+    int pos = insecure_rand() % mapOrphanBlocksByPrev.size();
+    std::multimap<uint256, CBlock*>::iterator it = mapOrphanBlocksByPrev.begin();
+    while (pos--) it++;
+
+    // As long as this block has other orphans depending on it, move to one of those successors.
+    do {
+        std::multimap<uint256, CBlock*>::iterator it2 = mapOrphanBlocksByPrev.find(it->second->GetHash());
+        if (it2 == mapOrphanBlocksByPrev.end())
+            break;
+        it = it2;
+    } while(1);
+
+    uint256 hash = it->second->GetHash();
+    delete it->second;
+    mapOrphanBlocksByPrev.erase(it);
+    mapOrphanBlocks.erase(hash);
+}
+
 bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 {
     AssertLockHeld(cs_main);
@@ -2293,26 +2318,29 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
         Checkpoints::AskForPendingSyncCheckpoint(pfrom);
 
     // If don't already have its previous block, shunt it off to holding area until we get it
-    if (!mapBlockIndex.count(pblock->hashPrevBlock))
-    {
-        printf("ProcessBlock: ORPHAN BLOCK, prev=%s\n", pblock->hashPrevBlock.ToString().substr(0,20).c_str());
-        // ppcoin: check proof-of-stake
-        if (pblock->IsProofOfStake())
-        {
-            // Limited duplicity on stake: prevents block flood attack
-            // Duplicate stake allowed only when there is orphan child block
-            if (setStakeSeenOrphan.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash) && !Checkpoints::WantedByPendingSyncCheckpoint(hash))
-                return error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for orphan block %s", pblock->GetProofOfStake().first.ToString().c_str(), pblock->GetProofOfStake().second, hash.ToString().c_str());
-            else
-                setStakeSeenOrphan.insert(pblock->GetProofOfStake());
-        }
-        CBlock* pblock2 = new CBlock(*pblock);
-        mapOrphanBlocks.insert(make_pair(hash, pblock2));
-        mapOrphanBlocksByPrev.insert(make_pair(pblock2->hashPrevBlock, pblock2));
+    if (pblock->hashPrevBlock != 0 && !mapBlockIndex.count(pblock->hashPrevBlock)) {
+        printf("ProcessBlock: ORPHAN BLOCK, prev=%s\n", pblock->hashPrevBlock.ToString().c_str());
 
-        // Ask this guy to fill in what we're missing
-        if (pfrom)
-        {
+        // Accept orphans as long as there is a node to request its parents from
+        if (pfrom) {
+            PruneOrphanBlocks();
+            CBlock *pblock2 = new CBlock(*pblock);
+            // ppcoin: check proof-of-stake
+            if (pblock2->IsProofOfStake()) {
+                // Limited duplicity on stake: prevents block flood attack
+                // Duplicate stake allowed only when there is orphan child block
+                if (setStakeSeenOrphan.count(pblock2->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash) && !Checkpoints::WantedByPendingSyncCheckpoint(hash)) {
+                    error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for orphan block %s", pblock2->GetProofOfStake().first.ToString().c_str(), pblock2->GetProofOfStake().second, hash.ToString().c_str());
+                    //pblock2 will not be needed, free it
+                    delete pblock2;
+                    return false;
+                } else
+                    setStakeSeenOrphan.insert(pblock2->GetProofOfStake());
+            }
+            mapOrphanBlocks.insert(make_pair(hash, pblock2));
+            mapOrphanBlocksByPrev.insert(make_pair(pblock2->hashPrevBlock, pblock2));
+
+            // Ask this guy to fill in what we're missing
             pfrom->PushGetBlocks(pindexBest, GetOrphanRoot(pblock2));
             // ppcoin: getblocks may not obtain the ancestor block rejected
             // earlier by duplicate-stake check so we ask for it again directly
@@ -2881,14 +2909,15 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             vRecv >> addrFrom >> nNonce;
        if (!vRecv.empty())
             vRecv >> pfrom->strSubVer;
-            const char* subver = pfrom->strSubVer.c_str();
-            if(strstr(subver, "IDOLCOIN") == NULL) {
-                printf("%s is not IDOLCOIN CLIENT\n",subver);
-                pfrom->fDisconnect = true;
-                return false;
-            }
         if (!vRecv.empty())
             vRecv >> pfrom->nStartingHeight;
+
+        if (pfrom->strSubVer.find("IDOLCOIN") == std::string::npos)
+        {
+            printf("partner %s using unknown wallet %s; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->strSubVer.c_str());
+            pfrom->fDisconnect = true;
+            return false;
+        }
 
         if (pfrom->fInbound && addrMe.IsRoutable())
         {

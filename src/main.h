@@ -1,5 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2011-2018 The Peercoin developers
 // Copyright (c) 2018 The IDOLCOIN developers
+// Copyright (c) 2018 Cure Chain
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_MAIN_H
@@ -35,10 +37,14 @@ static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2; // 512kb block 
 static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
 static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 static const unsigned int MAX_INV_SZ = 50000;
+static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 750;
 static const int64_t MIN_TX_FEE = 1;
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 static const int64_t MAX_MONEY = 77700000000 * COIN; // 77'700'000'000 IDOL IDOL Max
 static const int64_t COIN_YEAR_REWARD = 0.12 * COIN; // 12% per year
+
+const static int HARDFORK_BLOCK = 107200; // v1.0.4
+const static int HARDFORK_BLOCK_TESTNET = 10000; // v2.0.1
 
 inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 
@@ -112,7 +118,7 @@ bool LoadExternalBlockFile(FILE* fileIn);
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees);
-int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, const CBlockIndex* pindex);
+int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, const CBlockIndex *pindex);
 unsigned int ComputeMinWork(unsigned int nBase, int64_t nTime);
 unsigned int ComputeMinStake(unsigned int nBase, int64_t nTime, unsigned int nBlockTime);
 int GetNumBlocksOfPeers();

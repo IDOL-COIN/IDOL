@@ -1,12 +1,13 @@
 TEMPLATE = app
 TARGET = IDOL
-VERSION = 1.0.1
+VERSION = 2.0.1
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
 QT += core gui network widgets
 
+QMAKE_CXXFLAGS += -std=c++11
 
 USE_LEVELDB=1
 !macx:USE_QRCODE=1
@@ -20,19 +21,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32 {
-    BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
-    BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
-    BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
-    BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
-    BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
-    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1j/include
-    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1j
-    MINIUPNPC_INCLUDE_PATH=C:/deps/
-    MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
-    LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.16
-    LIBPNG_LIB_PATH=C:/deps/libpng-1.6.16/.libs
-    QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
-    QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
+    BOOST_LIB_SUFFIX=-mt
+    BOOST_THREAD_LIB_SUFFIX=_win32-mt
 }
 
 # for boost 1.37, add -mt to the boost libraries
@@ -91,7 +81,7 @@ contains(USE_UPNP, 0) {
     count(USE_UPNP, 0) {
         USE_UPNP=1
     }
-    DEFINES += USE_UPNP=$$USE_UPNP STATICLIB
+    DEFINES += USE_UPNP=$$USE_UPNP STATICLIB MINIUPNP_STATICLIB
     INCLUDEPATH += $$MINIUPNPC_INCLUDE_PATH
     LIBS += $$join(MINIUPNPC_LIB_PATH,,-L,) -lminiupnpc
     win32:LIBS += -liphlpapi
@@ -437,7 +427,7 @@ CODECFORTR = UTF-8
 TRANSLATIONS = $$files(src/qt/locale/bitcoin_*.ts)
 
 isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
+    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
     else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 }
 isEmpty(QM_DIR):QM_DIR = $$PWD/src/qt/locale
